@@ -1,0 +1,641 @@
+
+
+자바스크립트에서 반응에 따른 변화 만들기 
+
+
+
+자바스크립트에서 print = 
+console.log()
+
+
+
+
+
+
+function handleTitleClick(){
+
+    const currentColor = h1.style.color;
+    let newColor;
+
+    if (currentColor === "blue"){
+        newColor = "tomato";
+    } else{
+        newColor = "blue";
+    }
+    h1.style.color = newColor;
+}
+
+
+
+
+
+
+하지만 색깔은 js가 아니라 css에서 바꿔주는 게 좋다
+
+
+CSS 설정 
+
+.active { 
+    color : tomato;
+}
+
+
+
+function handleTitleClick(){
+    h1.className = "active";        // 여기서 js는 html과만 소통 => classname을 바꿔준다 => 그러면 css에서 설정한 것에 따라 = active 설정 => 색깔이 바뀐다
+                                    
+}
+
+
+부드러운 효과 
+
+.active { 
+    color : tomato;
+    transition: color 0.5s ease-in-out;
+}
+
+
+
+
+function handleTitleClick(){
+    if (h1.className === "active"){
+        h1.className = "";
+    } else {
+        h1.className = "active";
+    }
+
+}
+
+
+
+=> 좀 더 클린하게 
+
+1) clicked되는 기능을 정의한 raw 네임을 변수화함 => const clickedClass 
+
+2) html에서 정의한 본 class 네임이 훼손되는 부분의 문제 해결 필요성 => 
+classList를 사용해서 contain 여부로 마일드하게 바꿔줌 
+
+
+
+function handleTitleClick(){
+    const clickedClass = "clicked";
+
+    if (h1.classList.contains(clickedClass)){
+        h1.classList.remove(clickedClass);
+    } else {
+        h1.classList.add(clickedClass);
+    }
+
+}
+
+
+기존의 classname을 살리면서 효과가 들어갈 때 추가하는 방식으로 바꿀 수 있다 
+
+
+사실 토글 함수가 이미 있어서 굳이  이렇게 쓸 필요가 없다. 
+
+
+function handleTitleClick(){
+    h1.classList.toggle("clicked");
+}
+h1.addEventListener("click", handleTitleClick);
+
+
+// https://developer.mozilla.org/en-US/docs/Web/API/Element
+// console.dir(h1)  // <= element를 보여줌으로써 어떤 이벤트 찾을지 알려줄 수 
+
+
+
+
+
+
+유저 로그인 기능 
+
+
+원래의 방법 
+
+
+
+const loginInput = document.querySelector("#login-form input");
+const loginButton = document.querySelector("#login-form button");
+
+function onLoginBtnClick(){
+    const username = loginInput.value;
+    if (username ===""){
+        alert("Please write your name");
+    } else if (username.length > 15){
+        alert("Your name is too long");
+
+    }
+    console.dir(loginInput.value);
+}
+
+loginButton.addEventListener("click", onLoginBtnClick);
+
+
+
+
+BUT Html에서 input 조건을 넣어줄 수 있다. 
+
+form 형식으로 바꾸고 버튼 형식이 아닌 submit 방식으로 바꿔준다. 
+
+    <form id = "login-form">
+        <input 
+            required 
+            maxlength="15"           
+            type="text" 
+            placeholder="what is your name?"
+            />
+        <input type="submit" value ="Log In" />
+    </form>
+
+
+그런데 문제는 브라우저는 기본 function으로 form을 submit하면 계속 리프레시 시킨다 
+
+그걸 제어하기 위해 자바스크립트에서 기본으로 들어가고 있는 object 변수를 설정해주고 = event라고 conventional 하게 설정 
+
+function onLoginSubmit(event){
+    event.preventDefault();
+    const username = loginInput.value;
+    console.log(username);
+}
+
+
+
+event.preventDefault(); 이 코드로 기본 기능을 막는다 
+
+
+
+
+
+input 창에 쓴 글자 로그인 버튼 이후 사라지게 하기 
+
+css에서 hidden 기능 만들어주고 이벤트 발생시 히든시키는 기능으로 연결한다 
+
+
+
+function onLoginSubmit(event){
+    event.preventDefault();
+    const username = loginInput.value;
+    loginForm.classList.add("hidden");
+    console.log(loginInput.value);
+}
+
+
+
+
+전체가 다 사라지는 문제가 발생 => 
+
+html에서 새로 h1 태그 만들어주고 히든처리할 것과 살릴 것을 구분시킨다 
+
+그리고 js에서 이렇게 변경 
+
+
+const HIDDEN_CLASSNAME = "hidden";  // String 컨텐츠 담을 때는 대문자로 변수 정한다 
+
+function onLoginSubmit(event){
+    event.preventDefault();
+    loginForm.classList.add(HIDDEN_CLASSNAME);
+    const username = loginInput.value;
+    greeting.innerText = "Hello " + username;
+    greeting.classList.remove(HIDDEN_CLASSNAME);
+}
+
+
+
+
+
+Saving user name => 한번 저장된 유저는 기억하는 기능 구현 
+
+=> local storage를 사용한다 
+
+
+
+기본 로직 슈도코드 
+
+const savedUsername =localStorage.getItem(USERNAME_KEY);
+
+if ( savedUsername === null){
+    // show the form 
+} else
+    // show the greeting 
+
+
+
+반복되는 것 함수로 바꿔주고 
+
+
+function paintGreetings(username){
+    greeting.innerText = `hello ${username}`  ;
+    greeting.classList.remove(HIDDEN_CLASSNAME);
+
+}
+
+
+const savedUsername =localStorage.getItem(USERNAME_KEY);
+
+if ( savedUsername === null){
+    loginForm.classList.remove(HIDDEN_CLASSNAME);    // html에서 기본 form 도 히든으로 처리했기 때문에 저장이 안되어있는 경우 히든 기능을 제거 = 보이게 함 
+} else{
+   paintGreetings(username=savedUsername);
+}
+    
+
+
+
+
+
+다음 진도로 나가기 전에 폴더 정리 
+
+css, js 폴더 별도 생성 
+app.js 이름을 greetings.js로 바꿔주고 
+clock.js 생성 
+
+
+
+
+특정 시간 마다 실행하는 함수  => setInterval(sayHello, 5000);
+
+특정 시간 후에 실행하는 함수 => setTimeout(sayHello, 5000)
+
+
+
+
+
+
+function getClock(){
+    const date = new Date();
+    const hours = String(date.getHours()).padStart(2, "0");             // 00:00:00 형식을 맞춰주기 위해 스트링 + 패딩 작업 
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
+
+    clock.innerText = `${hours}:${minutes}:${seconds}`;
+}
+
+getClock(); // 바로 시작할 때 호출 
+setInterval(getClock, 1000);    // 1초에 한번씩 초를 갱신 
+
+
+
+
+자바스크립트에서 숫자 관련 함수 
+
+math.random() * 10 => 0 ~ 10까지의 숫자 
+
+math.round(1.1) 반올림 
+math.ceil(1.6) 올림
+math.floor(1.3) 내림 
+
+
+
+
+랜덤으로 컨텐츠를 생성하고 출력해주는 것 구현 
+
+  const quote = document.querySelector("#quote span:first-child");
+  const author = document.querySelector("#quote span:last-child");
+  const todaysQuote = quotes[Math.floor(Math.random() * quotes.length)];    
+  
+  quote.innerText = todaysQuote.quote;
+  author.innerText = todaysQuote.author;
+
+
+
+
+배경을 가져오는 것도 동일하다 
+
+가져온 배경을 html에 넣기 
+
+나와야 하는 형식 = 
+<img src="img/0.jpg" />
+
+
+이번에 변수 생성할때는 createElement("img); 를 씀 
+
+const bgImage = document.createElement("img")
+
+이 명령어로 img 컨텐츠를 임의로 생성할 수 있음 
+
+bgImage.src = `img/${chosenImage}`
+
+이것을 html body에 넣어주어야 한다 
+
+간단한 명령어로 가능
+
+document.body.appendChild(bgImage);
+
+
+
+
+
+
+
+
+todolist 만들기 
+
+기본적으로 아이디 받는 기능과 비슷하다 
+
+
+
+form으로 만들어주고 
+iput 받음 
+
+ul태그로 빈 태그 만들어줌 
+
+
+    <form id ="todo-form">
+        <input type="tett" placeholder="Write a Todo and Press Enter" required />
+    </form>
+    <ul id="todo-list"></ul>
+
+
+
+
+자바스크립트에서 똑같이 구현 
+
+const toDoForm =document.getElementById("todo-form");
+const toDoInput = toDoForm.querySelector("input");
+const toDoList =document.getElementById("todo-list");
+
+
+function handleToDoSubmit(event){
+    event.preventDefault();
+    toDoInput.value = "";           // 쓴 것을 지워주는 기능 
+}
+
+toDoForm.addEventListener("submit", handleToDoSubmit)
+
+
+
+
+받은 변수 저장하기 
+
+function handleToDoSubmit(event){
+    event.preventDefault();
+    const newTodo =toDoInput.value;         // 변수를 저장해 두고 
+    toDoInput.value = "";                   // 지움으로써 저장해둔 변수에는 변함이 없도록 한다 
+}
+
+toDoForm.addEventListener("submit", handleToDoSubmit)
+
+
+
+
+Todo에 페인트할 함수 생성 
+
+얘가 하는 일은 html <li> 태그에 represent 할 것을 만들고 뭔가를 하는 것 = 백그라운드 설정할 때 body 에 새로운 것을 만들어주었듯이 
+
+
+
+
+
+function paintToDo(newTodo){
+    const li = document.createElement("li")     // 변수 이름 자체를 li로 만들어줄 필요는 없음 
+    const span = document.createElement("span")
+    li.appendChild(span);       // li 태그 밑에 span을 넣어줌 = 나중에 버튼을 넣을 것을 고려해서 li에 그냥 문자열이 들어가지 않고 span을 통해 들어가게 함  
+    span.innerText = newTodo;
+}
+
+
+함수에 받은 newTodo가 사용자가 입력한 String
+
+마지막으로 html에 represnet 하기 위해
+toDoList.appendChild(li);
+
+
+
+이때 두가지 문제 해결 해야 함 
+
+1) 새로고침하면 없어지는 문제
+2) 쓴 걸 다시 지울 수도 있도록 하는 기능 
+
+
+
+
+delete 기능 구현하기 위해 먼저 버튼 생성 
+
+html에 명시적으로 넣어주고 
+
+    <ul id="todo-list">
+        <li>
+            <span>text</span>
+            <button>X</button>
+        </li>
+    </ul>
+
+js에서 똑같이 createElement 해줌 
+
+
+function paintToDo(newTodo){
+    const li = document.createElement("li");     
+    const span = document.createElement("span");
+    const button = document.createElement(("button"));
+    button.innerText="❌"
+    li.appendChild(span);     
+    li.appendChild(button);
+    span.innerText = newTodo;
+    toDoList.appendChild(li);
+}
+
+
+
+
+다음으로는 버튼이 클릭되면 지워지도록 하는 기능 
+= 간단하게 event 리스닝과 function으로 가능한데 
+
+문제는 어떤 게 어떤 것인지 세부적으로 조정할 필요가 있음 
+
+=> 클릭될때 js가 갖고 있는 이벤트 정보를 갖고 어떤 게 어떤 건지를 볼 수 있음 
+= event 가 갖고 있는 property 중 target으로 
+
+로직 : parentElement를 찾으면 이벤트가 발생할때 어떤 타겟으로 되는지를 알 수 있다 = 삭제해야 할 것 지목 가능 => 변수로 만들고 삭제하면 됨 
+
+
+
+function deleteToDo(event){
+   const li= event.target.parentElement;
+   li.remove();
+}
+
+
+
+
+todo를 저장하기 
+
+array를 만들어주고 push해주고 localStorage에 저장하는 방식 
+
+
+const toDos = []; 
+
+function saveToDos(){
+    localStorage.setItem("todos", toDos);
+}
+
+하지만 이때 가져올 때 string으로 가져오고 싶다면 
+JSON.stringify(); 로 저장해 배열 그대로 storage에 저장한다 
+
+    localStorage.setItem("todos", JSON.stringify(toDos));
+
+string으로 된 것을 다시 JSON.parse 하면 => object 형식으로 바뀜 
+인덱스가 있는 오브젝트 
+
+
+
+
+object array로 된 것을 개별적으로 컨트롤 하고 싶다면 
+function으로 넘겨줄 때 event 정보를 보면 된다 <= 중요한 기능 ! 
+
+
+ parsedToDos.forEach(); 
+
+ 이 함수로 각각의 객체들에 대한 접근 + 새로운 function으로 하나하나 컨트롤 
+
+array function으로 좀 더 간단하게도 가능하다 
+
+
+    parsedToDos.forEach( (item) => console.log("this is the turn of"), item);
+
+
+
+원하는 기능 = 저장된 것을 보이게 하는 것이기 때문에 
+
+parsedToDos.forEach( (paintToDo));
+
+
+
+여기서 문제는 const toDos = [];  항상 빈 array를 선언해놓았기 때문에 리프레쉬 할때마다 localStorage는 다시 덮어써진다 
+
+
+let toDos = []; 
+변수로 바꾸고 
+
+업데이트할 때마다 추가해주는 방식으로 해결 
+
+    toDos = parsedToDos;
+
+
+
+
+
+
+딕셔너리 형식으로 object 별로 id 부여하기  
+
+기존의 string을 object 형식으로 바꾸고 
+
+    const newTodoObj = {
+        text : newTodo, 
+        id : Date.now(),
+    };
+
+
+이걸 받을 때 그냥 받으면 object로 뜨기 때문에 
+
+    span.innerText = newTodo.text; 
+
+.text를 붙여서 받는다 
+
+
+
+
+
+
+
+array에서 요소를 빼서 각각 함수에 넣어주는 기능 
+filter 
+
+[1,2,3,4].filter(xfunction) <= 하나씩 xfuntion에 넣어준다 
+여기서 xfunction이 true or false를 리턴하게 만들면 
+array에서 빼고 저장시킬 수 있다 
+
+ex ) return item !=3 => 3빼고 [1,2,4] 리턴 
+
+
+이 기능에 따라 delete 할 때 클릭된 요소라면 그것만 빼 놓고 새로운 array를 만들어주고 
+그것을 저장해주면 
+지워지면서 + localStorage에서도 지워진다 
+
+
+
+function deleteToDo(event){
+   const li= event.target.parentElement;
+   li.remove();
+   toDos = toDos.filter( (toDo) => toDo.id !== parseInt(li.id) ); // 우리가 클릭한 li.did와 다른 toDo는 남겨둠 
+   saveToDos();
+}
+
+
+
+
+
+
+지리정보와 웨더정보 받기 
+
+https://openweathermap.org/api => api 받아오는 사이트 => 가입 
+
+
+
+지리 정보를 위도와 경도로 간단하게 받기 
+
+function onGeoSuccess(position){
+    const lat = position.coords.latitude; 
+    const lng = position.coords.longitude;
+}
+
+
+function onGeoError(){
+    alert("Can't find you.")
+}
+
+
+navigator.geolocation.getCurrentPosition(onGeoSuccess, onGeoError)      // 좌표 주는 코드 
+
+
+
+https://openweathermap.org/current 사이트에서 api call 주소를 가져오면 
+
+기본 로직 
+
+const API_KEY = "xxx";
+
+
+function onGeoSuccess(position){
+    const lat = position.coords.latitude; 
+    const lon = position.coords.longitude;
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}`
+}
+
+
+
+
+url을 들어가면 json 파일로 건네준다 
+받아서 요소 뽑기 
+
+    fetch(url).then(response => response.json() ).then(data => {
+        console.log(data.name, data.whather[0].main);
+    });
+
+
+이것을 변수로 만들어주고 html에도 span으로 공간 만들어줌 
+
+
+
+    fetch(url).then(response => response.json() ).then(data => {
+        const name = data.name;
+        const wheather = data.whather[0].main;
+    });
+}
+
+
+
+
+    <div id = "weather"> 
+        <span></span>
+        <span></span>
+    </div>
+
+
+html로 연동해주는 코드로 다시 수정 
+
+    const weather = document.querySelector("#weather span:first-child")
+    const city = document.querySelector("#weather span:last-child")
+    city.innerText = data.name;
+    weather.innerText = data.whather[0].main;

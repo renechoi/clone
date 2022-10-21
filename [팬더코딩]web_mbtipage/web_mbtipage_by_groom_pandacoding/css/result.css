@@ -1,0 +1,34 @@
+#result{
+    display: none;
+    background-color: whitesmoke;
+    width: 80%; /* 마진을 조정해줌 */
+    text-align: center; /* 글자 정렬 */
+    border-radius: 20px;
+}
+
+
+
+.resultDesc{                /*html에서 result 디스크립션 태그를 설정했으니*/
+    font-size: 25px;
+}
+
+.resultname{
+    font-size: 26px;
+}
+
+.kakao{
+    color:white;
+    background-color: #FEE500;
+    font-size: 20px;
+    border: 0px;
+    border-radius: 20px;
+}
+
+  
+.kakao:hover, .kakao:focus {
+    background-color: whitesmoke;
+    color: #FEE500;
+}
+  
+
+

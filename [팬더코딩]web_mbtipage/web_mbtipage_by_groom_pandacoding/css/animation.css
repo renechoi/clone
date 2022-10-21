@@ -1,0 +1,49 @@
+/* tcpschool.com의 css 항목에서 애니메이션 관련 코드로서 keyframe을 가져옴 = 전환될때 부드럽게 넘어가도록 */
+
+@keyframes fadeIn {
+
+    from { opacity: 0; }
+
+    to { opacity: 1; }
+
+}
+
+@keyframes fadeOut {
+
+    from { opacity: 1; }
+
+    to { opacity: 0; }
+
+}
+
+@-webkit-keyframes fadeIn {        /*크롬에서 사용되는 웹킷 */
+
+    from { opacity: 1; }
+
+    to { opacity: 0; }
+
+}
+
+
+@-webkit-keyframes fadeOut {       
+
+    from { opacity: 1; }
+
+    to { opacity: 0; }
+
+}
+
+
+
+.fadeIn{                        /*버튼들에 애니메이션 효과를 부여하기 위한 */
+    animation: fadeIn;
+    animation-duration: 0.5s;
+
+}
+
+
+.fadeOut{
+    animation: fadeOut;
+    animation-duration: 0.5s;
+    
+}

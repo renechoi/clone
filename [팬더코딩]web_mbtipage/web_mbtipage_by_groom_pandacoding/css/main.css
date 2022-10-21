@@ -1,0 +1,11 @@
+#main{
+    background-color: whitesmoke;
+    width: 80; /* 마진을 조정해줌 */
+    text-align: center; /* 글자 정렬 */
+    border-radius: 20px;
+
+}
+
+p{
+    font-size: 25px;
+}
